@@ -1,21 +1,34 @@
 %{
 
-#include <stdio.h>
-#include <stdlib.h>
+    #include <stdio.h>
+    #include <stdlib.h>
 
-int yylex(void);
-void yyerror(const char *s);
+    int yylex(void);
+    void yyerror(const char *s);
 
 %}
 
 %token FOR LPAREN RPAREN SEMICOLON ASSIGN LT GT LE GE EQ INC DEC
 %token ID NUMBER
 
+%right ASSIGN
+%left EQ
+%left LT GT LE GE
+%left INC DEC
+
 %%
 
-stmt : FOR LPAREN expr_opt SEMICOLON expr_opt SEMICOLON expr_opt RPAREN
+stmt : FOR LPAREN assn SEMICOLON comp SEMICOLON expr_opt RPAREN
        { printf("Valid FOR statement syntax\n"); }
      ;
+
+assn: ID ASSIGN var;
+
+comp: var relop var;
+
+relop: LT | GT | LE | GE | EQ
+
+var: ID | NUMBER
 
 expr_opt : /* empty */
          | expr
