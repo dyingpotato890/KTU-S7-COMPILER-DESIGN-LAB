@@ -51,48 +51,48 @@ int main() {
     partition[i] = finalStates[i] ? 1 : 0;
   }
 
-    int changed;
-    do {
-      changed = 0;            // Flag to check if any partition changed in this iteration
-      int newClass = 0;       // Used to assign new equivalence class IDs to states
+  int changed;
+  do {
+    changed = 0;            // Flag to check if any partition changed in this iteration
+    int newClass = 0;       // Used to assign new equivalence class IDs to states
 
-      // Initialize all states as unassigned in the new partition
-      for (int i = 0; i < numStates; i++)
-        newPartition[i] = -1;
+    // Initialize all states as unassigned in the new partition
+    for (int i = 0; i < numStates; i++)
+      newPartition[i] = -1;
 
-      // Go through all states to group equivalent ones
-      for (int i = 0; i < numStates; i++) {
-        // If this state hasn't been assigned to a new class yet
-        if (newPartition[i] == -1) {
-          newPartition[i] = newClass;   // Assign it to a new class
+    // Go through all states to group equivalent ones
+    for (int i = 0; i < numStates; i++) {
+      // If this state hasn't been assigned to a new class yet
+      if (newPartition[i] == -1) {
+        newPartition[i] = newClass;   // Assign it to a new class
 
-          // Compare this state with all following states
-          for (int j = i + 1; j < numStates; j++) {
-            // Only compare states that belong to the same old partition
-            if (partition[i] == partition[j]) {
-              int same = 1;   // Assume the two states are equivalent initially
+        // Compare this state with all following states
+        for (int j = i + 1; j < numStates; j++) {
+          // Only compare states that belong to the same old partition
+          if (partition[i] == partition[j]) {
+            int same = 1;   // Assume the two states are equivalent initially
 
-              // Check transitions for each input symbol
-              for (int s = 0; s < numSymbols; s++) {
-                // If the next states (for any symbol) go to different partitions,
-                // then these two states are not equivalent
-                if (partition[transitionTable[i][s]] !=
-                    partition[transitionTable[j][s]]) {
-                  same = 0;   // They differ
-                  break;      // No need to check further symbols
-                }
+            // Check transitions for each input symbol
+            for (int s = 0; s < numSymbols; s++) {
+              // If the next states (for any symbol) go to different partitions,
+              // then these two states are not equivalent
+              if (partition[transitionTable[i][s]] !=
+                  partition[transitionTable[j][s]]) {
+                same = 0;   // They differ
+                break;      // No need to check further symbols
               }
-
-              // If all transitions lead to the same partition, group them together
-              if (same)
-                newPartition[j] = newClass;
             }
-          }
 
-          // Move on to create the next new equivalence class
-          newClass++;
+            // If all transitions lead to the same partition, group them together
+            if (same)
+              newPartition[j] = newClass;
+          }
         }
+
+        // Move on to create the next new equivalence class
+        newClass++;
       }
+    }
 
     // Check if any partition changed
     for (int i = 0; i < numStates; i++) {
