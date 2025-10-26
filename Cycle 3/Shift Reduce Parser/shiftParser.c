@@ -4,17 +4,12 @@
 #define MAX 100
 #define MAX_PROD 10
 
-typedef struct {
-    char lhs;
-    char rhs[20];
-} Production;
-
-Production grammar[MAX_PROD];
+char production[MAX_PROD][MAX];
 int numProductions = 0;
 
 char input[MAX];
 char stack[MAX];
-int sp = -1; // stack pointer
+int sp = -1;  // stack pointer
 int ipPos = 0; // input pointer
 
 void push(char c) {
@@ -24,13 +19,15 @@ void push(char c) {
 
 void pop(int n) {
     sp -= n;
+    if (sp < -1) sp = -1;
     stack[sp + 1] = '\0';
 }
 
 // Check if top of stack matches RHS of production
-int matchRHS(char *rhs) {
+int matchRHS(const char *rhs) {
     int len = strlen(rhs);
-    if (sp + 1 < len) return 0;
+    if (sp + 1 < len)
+        return 0;
     for (int i = 0; i < len; i++) {
         if (stack[sp - len + 1 + i] != rhs[i])
             return 0;
@@ -38,16 +35,19 @@ int matchRHS(char *rhs) {
     return 1;
 }
 
-// Attempt to reduce stack using any production
+// Try to reduce the stack using any production
 int reduce() {
     char action[50];
     for (int p = 0; p < numProductions; p++) {
-        if (matchRHS(grammar[p].rhs)) {
-            int len = strlen(grammar[p].rhs);
-            pop(len);
-            push(grammar[p].lhs);
+        char lhs = production[p][0];
+        char *rhs = production[p] + 2; // skip '='
 
-            sprintf(action, "REDUCE: %c -> %s", grammar[p].lhs, grammar[p].rhs);
+        if (matchRHS(rhs)) {
+            int len = strlen(rhs);
+            pop(len);
+            push(lhs);
+
+            sprintf(action, "REDUCE: %c -> %s", lhs, rhs);
             printf("%-25s %-25s %-25s\n", stack, input + ipPos, action);
             return 1; // reduced
         }
@@ -60,12 +60,9 @@ int main() {
     scanf("%d", &numProductions);
     getchar();
 
-    printf("Enter productions in format E=E+E (use no spaces):\n");
+    printf("Enter productions (e.g., E=E+E, E=i):\n");
     for (int i = 0; i < numProductions; i++) {
-        char temp[20];
-        scanf("%s", temp);
-        grammar[i].lhs = temp[0];
-        strcpy(grammar[i].rhs, temp + 2); // skip '='
+        scanf("%s", production[i]);
     }
 
     printf("Enter input string: ");
@@ -82,14 +79,15 @@ int main() {
         printf("%-25s %-25s %-25s\n", stack, input + ipPos + 1, action);
         ipPos++;
 
-        // Try reducing as much as possible
+        // Try reducing repeatedly
         while (reduce());
     }
 
-    // Final reductions after input consumed
+    // Final reductions after input is consumed
     while (reduce());
 
-    if (sp == 1 && stack[sp] == grammar[0].lhs)
+    char startSymbol = production[0][0];
+    if (sp == 1 && stack[sp] == startSymbol && stack[0] == '$')
         printf("\nInput string is successfully parsed!\n");
     else
         printf("\nInput string is rejected!\n");
