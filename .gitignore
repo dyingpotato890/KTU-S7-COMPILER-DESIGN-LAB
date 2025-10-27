@@ -1,6 +1,8 @@
 .vscode
+Practice
 
 **/*.exe
+**/*.out
 **/*.png
 **/*.pdf
 **/*.docx
