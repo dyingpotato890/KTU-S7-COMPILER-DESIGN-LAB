@@ -1,8 +1,32 @@
 #include <stdio.h>
 #include <string.h>
 
-void main() {
-    char stack[20], input[20], opt[10][10][1], terminals[10];
+#define MAX 50
+
+int idx(char c, char terminals[], int n) {
+    for (int i = 0; i < n; i++) {
+        if (terminals[i] == c)
+            return i;
+    }
+    return -1;
+}
+
+int is_operator(char c) {
+    return (c != 'i' && c != '$');
+}
+
+// Function to get the topmost valid symbol from the stack
+char get_top_symbol(char stack[], int top) {
+    while (top >= 0) {
+        if (stack[top] != '<' && stack[top] != '>' && stack[top] != '=')
+            return stack[top];
+        top--;
+    }
+    return '$';
+}
+
+int main() {
+    char stack[MAX], input[MAX], opt[10][10][1], terminals[10];
     int i, j, k, numTerminals, top = 0, col, row;
 
     // Initialize arrays
@@ -43,55 +67,67 @@ void main() {
         printf("\n");
     }
 
-    // Initialize stack and input string (already includes $ at end)
+    // Initialize stack
     stack[top] = '$';
 
-    printf("\nEnter the input string: ");
+    printf("\nEnter the input string (e.g., i+i*i): ");
     scanf("%s", input);
-    i = 0;
 
-    printf("\nSTACK\t\t\tINPUT STRING\t\t\tACTION\n");
-    printf("\n%s\t\t\t%s\t\t\t", stack, input);
+    // Add end marker if not included
+    if (input[strlen(input) - 1] != '$')
+        strcat(input, "$");
 
-    // Operator precedence parsing loop
-    while (i <= strlen(input)) {
-        // Find column and row for stack top and current input symbol
-        for (k = 0; k < numTerminals; k++) {
-            if (stack[top] == terminals[k])
-                col = k;
-            if (input[i] == terminals[k])
-                row = k;
+    // Check for consecutive operators
+    for (i = 0; i < strlen(input) - 1; i++) {
+        if (is_operator(input[i]) && is_operator(input[i + 1]) &&
+            input[i] != '$' && input[i + 1] != '$') {
+            printf("\nError: consecutive operators '%c%c' in input\n", input[i], input[i + 1]);
+            return 0;
         }
+    }
 
-        if ((stack[top] == '$') && (input[i] == '$')) {
-            printf("String is ACCEPTED\n");
+    printf("\nSTACK\t\tINPUT\t\tACTION\n");
+    printf("%s\t\t%s\t\t", stack, input);
+
+    i = 0;
+    while (1) {
+        char a = get_top_symbol(stack, top);
+        char b = input[i];
+
+        col = idx(a, terminals, numTerminals);
+        row = idx(b, terminals, numTerminals);
+
+        if (col == -1 || row == -1) {
+            printf("\nError: invalid symbol '%c'\n", (col == -1) ? a : b);
             break;
         }
-        else if ((opt[col][row][0] == '<') || (opt[col][row][0] == '=')) {
+
+        if (a == '$' && b == '$') {
+            printf("String ACCEPTED\n");
+            break;
+        } else if (opt[col][row][0] == '<' || opt[col][row][0] == '=') {
             stack[++top] = opt[col][row][0];
-            stack[++top] = input[i];
-            printf("Shift %c", input[i]);
+            stack[++top] = b;
+            stack[top + 1] = '\0';
+            printf("Shift %c\n", b);
             i++;
-        }
-        else {
-            if (opt[col][row][0] == '>') {
-                while (stack[top] != '<')
-                    --top;
-                top = top - 1;
-                printf("Reduce");
-            } else {
-                printf("\nString is NOT accepted");
-                break;
-            }
+        } else if (opt[col][row][0] == '>') {
+            while (top > 0 && stack[top] != '<')
+                top--;
+            if (top > 0)
+                top--;
+            stack[top + 1] = '\0';
+            printf("Reduce\n");
+        } else {
+            printf("\nError: invalid precedence relation between '%c' and '%c'\n", a, b);
+            break;
         }
 
-        // Display current stack and input
-        printf("\n");
-        for (k = 0; k <= top; k++)
-            printf("%c", stack[k]);
-        printf("\t\t\t");
+        printf("%s\t\t", stack);
         for (k = i; k < strlen(input); k++)
             printf("%c", input[k]);
-        printf("\t\t\t");
+        printf("\t\t");
     }
+
+    return 0;
 }
