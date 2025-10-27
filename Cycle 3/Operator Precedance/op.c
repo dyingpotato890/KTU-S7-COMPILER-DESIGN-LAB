@@ -2,85 +2,96 @@
 #include <string.h>
 
 void main() {
-    char stack[20], ip[20], opt[10][10][1], ter[10];
-    int i, j, k, n, top = 0, col, row;
+    char stack[20], input[20], opt[10][10][1], terminals[10];
+    int i, j, k, numTerminals, top = 0, col, row;
 
+    // Initialize arrays
     for (i = 0; i < 10; i++) {
         stack[i] = '\0';
-        ip[i] = '\0';
+        input[i] = '\0';
         for (j = 0; j < 10; j++) {
             opt[i][j][0] = '\0';
         }
     }
 
-    printf("Enter The No. Of Terminals:\n");
-    scanf("%d", &n);
-    printf("\nEnter The Terminals:\n");
-    scanf("%s", ter);
-    printf("\nEnter The Table Values:\n");
+    // Read number of terminals and their symbols
+    printf("Enter the number of terminals: ");
+    scanf("%d", &numTerminals);
 
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
-            printf("Enter The Value For %c %c: ", ter[i], ter[j]);
+    printf("Enter the terminals: ");
+    scanf("%s", terminals);
+
+    // Read operator precedence table
+    printf("\nEnter the table values (<, >, =):\n");
+    for (i = 0; i < numTerminals; i++) {
+        for (j = 0; j < numTerminals; j++) {
+            printf("Enter the value for (%c, %c): ", terminals[i], terminals[j]);
             scanf("%s", opt[i][j]);
         }
     }
 
-    printf("\n**** OPERATOR PRECEDENCE TABLE ****\n");
-    for (i = 0; i < n; i++)
-        printf("\t%c", ter[i]);
+    // Display operator precedence table
+    printf("\n**** OPERATOR PRECEDENCE TABLE ****\n\t");
+    for (i = 0; i < numTerminals; i++)
+        printf("%c\t", terminals[i]);
     printf("\n");
 
-    for (i = 0; i < n; i++) {
-        printf("\n%c", ter[i]);
-        for (j = 0; j < n; j++)
-            printf("\t%c", opt[i][j][0]);
+    for (i = 0; i < numTerminals; i++) {
+        printf("%c\t", terminals[i]);
+        for (j = 0; j < numTerminals; j++)
+            printf("%c\t", opt[i][j][0]);
+        printf("\n");
     }
 
+    // Initialize stack and input string (already includes $ at end)
     stack[top] = '$';
-    printf("\n\nEnter The Input String: ");
-    scanf("%s", ip);
+
+    printf("\nEnter the input string: ");
+    scanf("%s", input);
     i = 0;
 
     printf("\nSTACK\t\t\tINPUT STRING\t\t\tACTION\n");
-    printf("\n%s\t\t\t%s\t\t\t\t", stack, ip);
+    printf("\n%s\t\t\t%s\t\t\t", stack, input);
 
-    while (i <= strlen(ip)) {
-        for (k = 0; k < n; k++) {
-            if (stack[top] == ter[k])
+    // Operator precedence parsing loop
+    while (i <= strlen(input)) {
+        // Find column and row for stack top and current input symbol
+        for (k = 0; k < numTerminals; k++) {
+            if (stack[top] == terminals[k])
                 col = k;
-            if (ip[i] == ter[k])
+            if (input[i] == terminals[k])
                 row = k;
         }
 
-        if ((stack[top] == '$') && (ip[i] == '$')) {
-            printf("String Is Accepted\n");
+        if ((stack[top] == '$') && (input[i] == '$')) {
+            printf("String is ACCEPTED\n");
             break;
-        } else if ((opt[col][row][0] == '<') || (opt[col][row][0] == '=')) {
+        }
+        else if ((opt[col][row][0] == '<') || (opt[col][row][0] == '=')) {
             stack[++top] = opt[col][row][0];
-            stack[++top] = ip[i];
-            printf("Shift %c", ip[i]);
+            stack[++top] = input[i];
+            printf("Shift %c", input[i]);
             i++;
-        } else {
+        }
+        else {
             if (opt[col][row][0] == '>') {
                 while (stack[top] != '<')
                     --top;
                 top = top - 1;
                 printf("Reduce");
             } else {
-                printf("\nString Is Not Accepted");
+                printf("\nString is NOT accepted");
                 break;
             }
         }
 
+        // Display current stack and input
         printf("\n");
         for (k = 0; k <= top; k++)
             printf("%c", stack[k]);
         printf("\t\t\t");
-        for (k = i; k < strlen(ip); k++)
-            printf("%c", ip[k]);
-        printf("\t\t\t\t");
+        for (k = i; k < strlen(input); k++)
+            printf("%c", input[k]);
+        printf("\t\t\t");
     }
-
-    getchar();
 }
