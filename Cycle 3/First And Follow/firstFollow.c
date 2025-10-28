@@ -57,39 +57,57 @@ void findFirst(char *result, char c) {
 }
 
 void findFollow(char *result, char c) {
+    // If c is the start symbol, add $
     if (production[0][0] == c) {
-        addToSet(result, '$'); // add $ to start symbol
+        addToSet(result, '$');
     }
 
+    // Loop through all productions
     for (int i = 0; i < n; i++) {
         for (int j = 2; production[i][j] != '\0'; j++) {
+
+            // When we find our target symbol 'c'
             if (production[i][j] == c) {
-                if (production[i][j + 1] != '\0') {
-                    char next = production[i][j + 1];
+                int k = j + 1;
+                int allEpsilon = 1; // Track if all symbols to the right derive ε
+
+                // Look at all symbols to the right of 'c'
+                while (production[i][k] != '\0' && allEpsilon) {
+                    allEpsilon = 0;
+                    char next = production[i][k];
+
+                    // If next is a terminal, just add it
                     if (!isupper(next)) {
                         addToSet(result, next);
-                    } else {
+                        break;
+                    } 
+                    else {
+                        // Next is non-terminal → add FIRST(next) - {ε}
                         char temp[MAX] = "";
                         findFirst(temp, next);
+
                         int hasEpsilon = 0;
-                        for (int k = 0; temp[k] != '\0'; k++) {
-                            if (temp[k] != '#')
-                                addToSet(result, temp[k]);
+                        for (int x = 0; temp[x] != '\0'; x++) {
+                            if (temp[x] != '#')
+                                addToSet(result, temp[x]);
                             else
                                 hasEpsilon = 1;
                         }
-                        if (hasEpsilon) {
-                            char temp2[MAX] = "";
-                            findFollow(temp2, production[i][0]);
-                            for (int k = 0; temp2[k] != '\0'; k++)
-                                addToSet(result, temp2[k]);
-                        }
+
+                        // If next can produce ε, we continue to next symbol
+                        if (hasEpsilon)
+                            allEpsilon = 1;
                     }
-                } else if (production[i][0] != c) {
-                    char temp[MAX] = "";
-                    findFollow(temp, production[i][0]);
-                    for (int k = 0; temp[k] != '\0'; k++)
-                        addToSet(result, temp[k]);
+                    k++;
+                }
+
+                // If we reached end OR all symbols after c can derive ε
+                // then add FOLLOW(LHS) to FOLLOW(c)
+                if ((production[i][k] == '\0' && production[i][0] != c) || allEpsilon) {
+                    char temp2[MAX] = "";
+                    findFollow(temp2, production[i][0]);
+                    for (int x = 0; temp2[x] != '\0'; x++)
+                        addToSet(result, temp2[x]);
                 }
             }
         }
