@@ -68,40 +68,52 @@ void findFollowHelper(char *result, char c, char *visited) {
     visited[len] = c;
     visited[len + 1] = '\0';
 
-    // Rule 1: If c is start symbol, add $ to FOLLOW
+    // Rule 1: If c is the start symbol, add $ to FOLLOW
     if (production[0][0] == c) {
-        addToSet(result, '$'); // add $ to start symbol
+        addToSet(result, '$');
     }
 
-    // Rule 2 & 3: Look for c in RHS of all productions
+    // Rule 2 & 3: Loop through all productions
     for (int i = 0; i < n; i++) {
         for (int j = 2; production[i][j] != '\0'; j++) {
             if (production[i][j] == c) {
-                // Rule 2: If A -> αcβ, add FIRST(β) - {ε} to FOLLOW(c)
-                if (production[i][j + 1] != '\0') {
-                    char next = production[i][j + 1];
+                int k = j + 1;
+                int allEpsilon = 1; // Track if all symbols to the right derive ε
+
+                // Look at all symbols to the right of 'c'
+                while (production[i][k] != '\0' && allEpsilon) {
+                    allEpsilon = 0;
+                    char next = production[i][k];
+
+                    // If next is a terminal, just add it
                     if (!isupper(next)) {
-                        // next is terminal, add it directly
                         addToSet(result, next);
+                        break;
                     } else {
-                        // next is non-terminal, find its FIRST set
+                        // Next is non-terminal → add FIRST(next) - {ε}
                         char temp[MAX] = "";
                         findFirst(temp, next);
+
                         int hasEpsilon = 0;
-                        for (int k = 0; temp[k] != '\0'; k++) {
-                            if (temp[k] != '#')
-                                addToSet(result, temp[k]);
+                        for (int x = 0; temp[x] != '\0'; x++) {
+                            if (temp[x] != '#')
+                                addToSet(result, temp[x]);
                             else
                                 hasEpsilon = 1;
                         }
-                        // Rule 3: If ε in FIRST(β), add FOLLOW(A) to FOLLOW(c)
-                        if (hasEpsilon && production[i][0] != c) {
-                            findFollowHelper(result, production[i][0], visited);
-                        }
+                        if (hasEpsilon)
+                            allEpsilon = 1;
                     }
-                } else if (production[i][0] != c) {
-                    // Rule 3: If A -> αc (c is at end), add FOLLOW(A) to FOLLOW(c)
-                    findFollowHelper(result, production[i][0], visited);
+                    k++;
+                }
+
+                // If we reached end OR all symbols after c can derive ε
+                // then add FOLLOW(LHS) to FOLLOW(c)
+                if ((production[i][k] == '\0' && production[i][0] != c) || allEpsilon) {
+                    char temp2[MAX] = "";
+                    findFollowHelper(temp2, production[i][0], visited);
+                    for (int x = 0; temp2[x] != '\0'; x++)
+                        addToSet(result, temp2[x]);
                 }
             }
         }
