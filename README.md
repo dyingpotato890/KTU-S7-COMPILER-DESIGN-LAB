@@ -40,12 +40,12 @@ The experiments are organized into cycles as per the lab syllabus.
 - [NFA To DFA](./Cycle%201/NFA%20To%20DFA/)
 
 ### Cycle 2
-- [BNF Rules](./Cycle%202/BNF%20Rules/)
-- [Calculator](./Cycle%202/Calculator/)
-- [For Loop](./Cycle%202/For%20Loop/)
+- BNF Rules: [Lex](./Cycle%202/BNF%20Rules/lexer.l) | [Yacc](./Cycle%202/BNF%20Rules/parser.y)
+- Calculator: [Lex](./Cycle%202/Calculator/calc.l) | [Yacc](./Cycle%202/Calculator/calc.y)
+- For Loop: [Lex](./Cycle%202/For%20Loop/for.l) | [Yacc](./Cycle%202/For%20Loop/for.y)
 - [Lexical Analyzer](./Cycle%202/Lexical%20Analyzer/)
 - [No Name](./Cycle%202/No%20Name/)
-- [Valid Variable](./Cycle%202/Valid%20Variable/)
+- Valid Variable: [Lex](./Cycle%202/Valid%20Variable/lexer.l) | [Yacc](./Cycle%202/Valid%20Variable/parser.y)
 
 ### Cycle 3
 - [First And Follow](./Cycle%203/First%20And%20Follow/)
@@ -57,11 +57,11 @@ The experiments are organized into cycles as per the lab syllabus.
 - [Intermediate Code Generation](./Cycle%204/Intermediate%20Code%20Generation/)
 
 ### Additional Questions
-- [Basic While Loop](./Additional%20Questions/Basic%20While%20Loop/)
+- Basic While Loop: [Lex](./Additional%20Questions/Basic%20While%20Loop/lexer.l) | [Yacc](./Additional%20Questions/Basic%20While%20Loop/parser.y)
 - [Counter](./Additional%20Questions/Counter/)
-- [If-Else Ladder](./Additional%20Questions/If-Else%20Ladder/)
+- If-Else Ladder: [Lex](./Additional%20Questions/If-Else%20Ladder/lexer.l) | [Yacc](./Additional%20Questions/If-Else%20Ladder/parser.y)
 - [Lexical Analyser](./Additional%20Questions/Lexical%20Analyser/)
-- [Nested While Loop](./Additional%20Questions/Nested%20While%20Loop/)
+- Nested While Loop: [Lex](./Additional%20Questions/Nested%20While%20Loop/lexer.l) | [Yacc](./Additional%20Questions/Nested%20While%20Loop/parser.y)
 - [Replace Charecters](./Additional%20Questions/Replace%20Charecters/)
 
 ## Contributors
